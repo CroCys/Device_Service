@@ -1,5 +1,6 @@
 package vadim.room_service.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vadim.room_service.entity.Room;
@@ -30,7 +31,7 @@ public class RoomController {
 
     @PostMapping
     public ResponseEntity<Room> createRoom(@RequestBody Room room) {
-        return ResponseEntity.ok(roomService.createRoom(room));
+        return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
     }
 
     @PutMapping("/{id}")
