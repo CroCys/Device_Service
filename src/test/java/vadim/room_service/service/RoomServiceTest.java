@@ -1,14 +1,16 @@
 package vadim.room_service.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Sort;
 import vadim.room_service.entity.Room;
+import vadim.room_service.exception.RoomNotFoundException;
 import vadim.room_service.repository.RoomRepository;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,108 +26,119 @@ class RoomServiceTest {
     @InjectMocks
     private RoomService roomService;
 
-    @Test
-    void getAllRoomsTest() {
-        List<Room> rooms = Arrays.asList(new Room(), new Room());
-        when(roomRepository.findAll()).thenReturn(rooms);
+    private Room room;
 
-        List<Room> result = roomService.getAllRooms();
-
-        assertEquals(rooms.size(), result.size());
-        verify(roomRepository, times(2)).findAll();
+    @BeforeEach
+    void setUp() {
+        room = new Room();
+        room.setId(1L);
+        room.setName("Deluxe Room");
+        room.setDescription("A luxury room");
+        room.setPrice(BigDecimal.valueOf(150.0));
+        room.setIsAvailable(true);
     }
 
     @Test
-    void getRoomByIdTest() {
-        Long id = 1L;
-        Room room = new Room();
-        room.setId(id);
-        room.setCreatedAt(LocalDateTime.now());
-        when(roomRepository.findById(id)).thenReturn(Optional.of(room));
+    void testGetAllRooms() {
+        when(roomRepository.findAll()).thenReturn(List.of(room));
 
-        Room result = roomService.getRoomById(id);
+        List<Room> rooms = roomService.getAllRooms();
 
-        assertNotNull(result);
-        assertEquals(id, result.getId());
-        assertEquals(room.getCreatedAt(), result.getCreatedAt());
-        verify(roomRepository, times(1)).findById(id);
+        assertEquals(1, rooms.size());
+        assertEquals("Deluxe Room", rooms.getFirst().getName());
+        verify(roomRepository, times(1)).findAll();
     }
 
     @Test
-    void getRoomByIdInvalidIdTest() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.getRoomById(-1L));
-        assertEquals("Invalid room id " + -1, exception.getMessage());
+    void testGetAllRoomsSorted() {
+        when(roomRepository.findAll(Sort.by("price"))).thenReturn(List.of(room));
+
+        List<Room> rooms = roomService.getAllRoomsSorted("price");
+
+        assertEquals(1, rooms.size());
+        assertEquals(BigDecimal.valueOf(150.0), rooms.getFirst().getPrice());
+        verify(roomRepository, times(1)).findAll(Sort.by("price"));
     }
 
     @Test
-    void getRoomByIdNotFoundTest() {
-        Long id = 1L;
-        when(roomRepository.findById(id)).thenReturn(Optional.empty());
+    void testGetRoomById_Success() {
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.getRoomById(id));
-        assertEquals("Room not found", exception.getMessage());
+        Room foundRoom = roomService.getRoomById(1L);
+
+        assertNotNull(foundRoom);
+        assertEquals(1L, foundRoom.getId());
+        assertEquals("Deluxe Room", foundRoom.getName());
+        verify(roomRepository, times(1)).findById(1L);
     }
 
     @Test
-    void createRoomTest() {
-        Room room = new Room();
+    void testGetRoomById_NotFound() {
+        when(roomRepository.findById(2L)).thenReturn(Optional.empty());
+
+        assertThrows(RoomNotFoundException.class, () -> roomService.getRoomById(2L));
+    }
+
+    @Test
+    void testCreateRoom_Success() {
         when(roomRepository.save(room)).thenReturn(room);
 
-        Room result = roomService.createRoom(room);
+        Room savedRoom = roomService.createRoom(room);
 
-        assertNotNull(result);
+        assertNotNull(savedRoom);
+        assertEquals("Deluxe Room", savedRoom.getName());
         verify(roomRepository, times(1)).save(room);
     }
 
     @Test
-    void createRoomInvalidTest() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.createRoom(null));
-        assertEquals("Invalid room", exception.getMessage());
+    void testCreateRoom_InvalidData() {
+        Room invalidRoom = new Room();
+
+        assertThrows(IllegalArgumentException.class, () -> roomService.createRoom(invalidRoom));
     }
 
     @Test
-    void updateRoomTest() {
-        Long id = 1L;
-        Room existingRoom = new Room();
-        existingRoom.setId(id);
+    void testUpdateRoom_Success() {
         Room updatedRoom = new Room();
-        updatedRoom.setName("Updated Name");
+        updatedRoom.setName("Updated Room");
+        updatedRoom.setDescription("Updated description");
+        updatedRoom.setPrice(BigDecimal.valueOf(200.0));
+        updatedRoom.setIsAvailable(false);
 
-        when(roomRepository.findById(id)).thenReturn(Optional.of(existingRoom));
-        when(roomRepository.save(existingRoom)).thenReturn(existingRoom);
+        when(roomRepository.findById(1L)).thenReturn(Optional.of(room));
+        when(roomRepository.save(any(Room.class))).thenReturn(updatedRoom);
 
-        Room result = roomService.updateRoom(id, updatedRoom);
+        Room result = roomService.updateRoom(1L, updatedRoom);
 
         assertNotNull(result);
-        assertEquals("Updated Name", result.getName());
-        verify(roomRepository, times(2)).findById(id);
-        verify(roomRepository, times(1)).save(existingRoom);
+        assertEquals("Updated Room", result.getName());
+        assertEquals(BigDecimal.valueOf(200.0), result.getPrice());
+        assertFalse(result.getIsAvailable());
+        verify(roomRepository, times(1)).save(any(Room.class));
     }
 
     @Test
-    void updateRoomInvalidIdTest() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.updateRoom(null, new Room()));
-        assertEquals("Invalid room id " + null, exception.getMessage());
+    void testUpdateRoom_NotFound() {
+        Room updatedRoom = new Room();
+        when(roomRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(RoomNotFoundException.class, () -> roomService.updateRoom(1L, updatedRoom));
     }
 
     @Test
-    void updateRoomInvalidRoomTest() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.updateRoom(1L, null));
-        assertEquals("Room not found", exception.getMessage());
+    void testDeleteRoom_Success() {
+        when(roomRepository.existsById(1L)).thenReturn(true);
+        doNothing().when(roomRepository).deleteById(1L);
+
+        assertDoesNotThrow(() -> roomService.deleteRoom(1L));
+
+        verify(roomRepository, times(1)).deleteById(1L);
     }
 
     @Test
-    void deleteRoomTest() {
-        Long id = 1L;
+    void testDeleteRoom_NotFound() {
+        when(roomRepository.existsById(1L)).thenReturn(false);
 
-        roomService.deleteRoom(id);
-
-        verify(roomRepository, times(1)).deleteById(id);
-    }
-
-    @Test
-    void deleteRoomInvalidIdTest() {
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> roomService.deleteRoom(null));
-        assertEquals("Invalid room id " + null, exception.getMessage());
+        assertThrows(RoomNotFoundException.class, () -> roomService.deleteRoom(1L));
     }
 }

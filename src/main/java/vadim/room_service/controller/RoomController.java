@@ -1,12 +1,13 @@
 package vadim.room_service.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vadim.room_service.entity.Room;
 import vadim.room_service.service.RoomService;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/rooms")
@@ -20,8 +21,8 @@ public class RoomController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Room>> getAllRooms() {
-        return ResponseEntity.ok(roomService.getAllRooms());
+    public ResponseEntity<Page<Room>> getAllRooms(Pageable pageable) {
+        return ResponseEntity.ok(roomService.getAllRooms(pageable));
     }
 
     @GetMapping("/{id}")
@@ -30,12 +31,12 @@ public class RoomController {
     }
 
     @PostMapping
-    public ResponseEntity<Room> createRoom(@RequestBody Room room) {
+    public ResponseEntity<Room> createRoom(@Valid @RequestBody Room room) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roomService.createRoom(room));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Room> updateRoom(@PathVariable Long id, @RequestBody Room updatedRoom) {
+    public ResponseEntity<Room> updateRoom(@PathVariable Long id, @Valid @RequestBody Room updatedRoom) {
         return ResponseEntity.ok(roomService.updateRoom(id, updatedRoom));
     }
 

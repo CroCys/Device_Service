@@ -1,6 +1,7 @@
 package vadim.room_service.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,21 +15,29 @@ public class Room {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "The room name cannot be empty")
     @Column(nullable = false)
     private String name;
 
+    @Size(max = 500, message = "Description should not exceed 500 characters")
     @Column(length = 500)
     private String description;
 
+    @NotNull(message = "Price is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     @Column(nullable = false)
     private BigDecimal price;
 
+    @NotNull(message = "Availability status is required")
     @Column(name = "is_available", nullable = false)
     private Boolean isAvailable = true;
 
+
+    @PastOrPresent(message = "Creation date cannot be in the future")
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
 
+    @PastOrPresent(message = "The update date cannot be in the future")
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
 
