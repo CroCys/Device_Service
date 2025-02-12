@@ -4,18 +4,23 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import vadim.room_service.entity.Room;
+import vadim.room_service.dto.RoomRequestDTO;
+import vadim.room_service.dto.RoomResponseDTO;
 import vadim.room_service.service.RoomService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
-
 
 @SpringBootTest
 public class RoomControllerTest {
@@ -28,25 +33,30 @@ public class RoomControllerTest {
 
     @Test
     void getAllRoomsTest() {
-        List<Room> mockRooms = List.of(new Room(), new Room());
-        when(roomService.getAllRooms()).thenReturn(mockRooms);
+        List<RoomResponseDTO> mockRooms = List.of(new RoomResponseDTO(1L, "Room 1", 2, "empty",
+                        BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)),
+                new RoomResponseDTO(2L, "Room 2", 4, "empty",
+                        BigDecimal.valueOf(150), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)));
 
-        ResponseEntity<List<Room>> response = roomController.getAllRooms();
+        Page<RoomResponseDTO> page = new PageImpl<>(mockRooms, PageRequest.of(0, 10), mockRooms.size());
+        when(roomService.getAllRooms(PageRequest.of(0, 10))).thenReturn(page);
+
+        ResponseEntity<Page<RoomResponseDTO>> response = roomController.getAllRooms(PageRequest.of(0, 10));
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(mockRooms, response.getBody());
+        assertEquals(page, response.getBody());
 
-        verify(roomService, times(1)).getAllRooms();
+        verify(roomService, times(1)).getAllRooms(PageRequest.of(0, 10));
     }
 
     @Test
     void getRoomByIdTest() {
-        Room mockRoom = new Room();
-        mockRoom.setId(1L);
+        RoomResponseDTO mockRoom = new RoomResponseDTO(1L, "Room 1", 2, "empty",
+                BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
         when(roomService.getRoomById(mockRoom.getId())).thenReturn(mockRoom);
 
-        ResponseEntity<Room> response = roomController.getRoomById(mockRoom.getId());
+        ResponseEntity<RoomResponseDTO> response = roomController.getRoomById(mockRoom.getId());
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -57,36 +67,37 @@ public class RoomControllerTest {
 
     @Test
     void createRoomTest() {
-        Room mockRoom = new Room();
+        RoomRequestDTO roomRequestDTO = new RoomRequestDTO("Room 1", 2, "empty", BigDecimal.valueOf(100));
+        RoomResponseDTO mockRoom = new RoomResponseDTO(1L, "Room 1", 2, "empty",
+                BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 
-        when(roomService.createRoom(mockRoom)).thenReturn(mockRoom);
+        when(roomService.createRoom(roomRequestDTO)).thenReturn(mockRoom);
 
-        ResponseEntity<Room> response = roomController.createRoom(mockRoom);
+        ResponseEntity<RoomResponseDTO> response = roomController.createRoom(roomRequestDTO);
 
         assertNotNull(response);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(mockRoom, response.getBody());
 
-        verify(roomService, times(1)).createRoom(mockRoom);
+        verify(roomService, times(1)).createRoom(roomRequestDTO);
     }
 
     @Test
     void updateRoomTest() {
         Long roomId = 1L;
-        Room updatedRoom = new Room();
-        updatedRoom.setId(roomId);
-        updatedRoom.setName("Updated Room");
-        updatedRoom.setPrice(BigDecimal.valueOf(100));
+        RoomRequestDTO updatedRoomDTO = new RoomRequestDTO("Updated Room", 3, "empty", BigDecimal.valueOf(120));
+        RoomResponseDTO updatedRoom = new RoomResponseDTO(roomId, "Updated Room", 3, "empty",
+                BigDecimal.valueOf(120), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 
-        when(roomService.updateRoom(roomId, updatedRoom)).thenReturn(updatedRoom);
+        when(roomService.updateRoom(roomId, updatedRoomDTO)).thenReturn(updatedRoom);
 
-        ResponseEntity<Room> response = roomController.updateRoom(roomId, updatedRoom);
+        ResponseEntity<RoomResponseDTO> response = roomController.updateRoom(roomId, updatedRoomDTO);
 
         assertNotNull(response);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(updatedRoom, response.getBody());
 
-        verify(roomService, times(1)).updateRoom(roomId, updatedRoom);
+        verify(roomService, times(1)).updateRoom(roomId, updatedRoomDTO);
     }
 
     @Test

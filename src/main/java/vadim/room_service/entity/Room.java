@@ -19,6 +19,11 @@ public class Room {
     @Column(nullable = false)
     private String name;
 
+    @NotNull(message = "Sleeping places is required")
+    @Min(value = 1, message = "Sleeping places cannot be 0 or below")
+    @Column(name = "sleeping_places", nullable = false)
+    private Integer sleepingPlaces;
+
     @Size(max = 500, message = "Description should not exceed 500 characters")
     @Column(length = 500)
     private String description;
@@ -28,18 +33,13 @@ public class Room {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @NotNull(message = "Availability status is required")
-    @Column(name = "is_available", nullable = false)
-    private Boolean isAvailable = true;
-
-
     @PastOrPresent(message = "Creation date cannot be in the future")
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    private LocalDateTime createdAt;
 
     @PastOrPresent(message = "The update date cannot be in the future")
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -49,51 +49,53 @@ public class Room {
         this.id = id;
     }
 
-    public String getName() {
+    public @NotBlank(message = "The room name cannot be empty") String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public void setName(@NotBlank(message = "The room name cannot be empty") String name) {
         this.name = name;
     }
 
-    public String getDescription() {
+    @NotNull(message = "Sleeping places is required")
+    @Min(value = 1, message = "Sleeping places cannot be 0 or below")
+    public Integer getSleepingPlaces() {
+        return sleepingPlaces;
+    }
+
+    public void setSleepingPlaces(@NotNull(message = "Sleeping places is required") @Min(value = 1, message = "Sleeping places cannot be 0 or below") Integer sleepingPlaces) {
+        this.sleepingPlaces = sleepingPlaces;
+    }
+
+    public @Size(max = 500, message = "Description should not exceed 500 characters") String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(@Size(max = 500, message = "Description should not exceed 500 characters") String description) {
         this.description = description;
     }
 
-    public BigDecimal getPrice() {
+    public @NotNull(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0") BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(@NotNull(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0") BigDecimal price) {
         this.price = price;
     }
 
-    public Boolean getIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(Boolean available) {
-        isAvailable = available;
-    }
-
-    public LocalDateTime getCreatedAt() {
+    public @PastOrPresent(message = "Creation date cannot be in the future") LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(@PastOrPresent(message = "Creation date cannot be in the future") LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public @PastOrPresent(message = "The update date cannot be in the future") LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(@PastOrPresent(message = "The update date cannot be in the future") LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 }
