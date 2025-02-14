@@ -1,6 +1,8 @@
 package vadim.room_service.service;
 
 import jakarta.transaction.Transactional;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,8 +15,6 @@ import vadim.room_service.mapper.RoomMapper;
 import vadim.room_service.repository.RoomRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Service
 public class RoomService {
@@ -27,6 +27,7 @@ public class RoomService {
         this.roomMapper = roomMapper;
     }
 
+    @Cacheable(value = "rooms", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<RoomResponseDTO> getAllRooms(Pageable pageable) {
         return roomRepository.findAll(pageable).map(roomMapper::roomToRoomResponseDTO);
     }
@@ -53,6 +54,7 @@ public class RoomService {
         return roomRepository.findAll(spec, pageable).map(roomMapper::roomToRoomResponseDTO);
     }
 
+    @Cacheable(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid room id " + id);
@@ -63,15 +65,12 @@ public class RoomService {
         return roomMapper.roomToRoomResponseDTO(room);
     }
 
+    @CacheEvict(value = "rooms", allEntries = true)
     public RoomResponseDTO createRoom(RoomRequestDTO roomRequestDTO) {
         if (roomRequestDTO == null || roomRequestDTO.getName() == null || roomRequestDTO.getName().isEmpty() ||
                 roomRequestDTO.getPrice() == null || roomRequestDTO.getSleepingPlaces() <= 0) {
             throw new IllegalArgumentException("Invalid room data");
         }
-        if (roomRequestDTO.getCreatedAt() == null) {
-            roomRequestDTO.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        }
-        roomRequestDTO.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 
         Room room = roomMapper.roomRequestDTOToRoom(roomRequestDTO);
         Room savedRoom = roomRepository.save(room);
@@ -97,12 +96,12 @@ public class RoomService {
         room.setDescription(updatedRoomDTO.getDescription());
         room.setPrice(updatedRoomDTO.getPrice());
         room.setSleepingPlaces(updatedRoomDTO.getSleepingPlaces());
-        room.setUpdatedAt(updatedRoomDTO.getUpdatedAt());
 
         Room savedRoom = roomRepository.save(room);
         return roomMapper.roomToRoomResponseDTO(savedRoom);
     }
 
+    @CacheEvict(value = "rooms", key = "#id")
     public void deleteRoom(Long id) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid room id " + id);

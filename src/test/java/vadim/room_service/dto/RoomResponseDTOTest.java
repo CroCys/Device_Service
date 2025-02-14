@@ -4,8 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,7 +20,7 @@ class RoomResponseDTOTest {
     @Test
     void testAllArgsConstructor() {
         RoomResponseDTO roomResponseDTO = new RoomResponseDTO(1L, "Suite", 2, "Luxury suite",
-                BigDecimal.valueOf(200.0), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                BigDecimal.valueOf(200.0));
 
         assertEquals(1L, roomResponseDTO.getId());
         assertEquals("Suite", roomResponseDTO.getName());

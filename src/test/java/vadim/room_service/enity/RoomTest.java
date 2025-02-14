@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import vadim.room_service.entity.Room;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,8 +30,6 @@ public class RoomTest {
         room.setSleepingPlaces(2);
         room.setDescription("A spacious room with a beautiful view");
         room.setPrice(new BigDecimal("100.50"));
-        room.setCreatedAt(LocalDateTime.now().minusDays(1));
-        room.setUpdatedAt(LocalDateTime.now());
 
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertTrue(violations.isEmpty(), "There should be no validation errors");
@@ -45,8 +42,6 @@ public class RoomTest {
         room.setSleepingPlaces(2);
         room.setDescription("A basic room");
         room.setPrice(new BigDecimal("0.0"));
-        room.setCreatedAt(LocalDateTime.now().minusDays(1));
-        room.setUpdatedAt(LocalDateTime.now());
 
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
@@ -60,8 +55,6 @@ public class RoomTest {
         room.setSleepingPlaces(0);
         room.setDescription("A basic economy room");
         room.setPrice(new BigDecimal("50.0"));
-        room.setCreatedAt(LocalDateTime.now().minusDays(1));
-        room.setUpdatedAt(LocalDateTime.now());
 
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
@@ -75,8 +68,6 @@ public class RoomTest {
         room.setSleepingPlaces(3);
         room.setDescription("A luxurious room with modern amenities");
         room.setPrice(new BigDecimal("200.0"));
-        room.setCreatedAt(LocalDateTime.now().plusDays(1));
-        room.setUpdatedAt(LocalDateTime.now().minusDays(1));
 
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
@@ -90,8 +81,6 @@ public class RoomTest {
         room.setSleepingPlaces(2);
         room.setDescription("A room with no name");
         room.setPrice(new BigDecimal("75.0"));
-        room.setCreatedAt(LocalDateTime.now().minusDays(1));
-        room.setUpdatedAt(LocalDateTime.now());
 
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");

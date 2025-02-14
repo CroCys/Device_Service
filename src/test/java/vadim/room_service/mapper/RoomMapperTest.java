@@ -53,7 +53,5 @@ class RoomMapperTest {
         assertEquals(3, room.getSleepingPlaces());
         assertEquals("A spacious deluxe room", room.getDescription());
         assertEquals(BigDecimal.valueOf(180.0), room.getPrice());
-        assertNull(room.getCreatedAt());
-        assertNull(room.getUpdatedAt());
     }
 }

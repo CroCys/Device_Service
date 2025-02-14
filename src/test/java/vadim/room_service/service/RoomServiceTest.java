@@ -16,8 +16,6 @@ import vadim.room_service.mapper.RoomMapper;
 import vadim.room_service.repository.RoomRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,7 +49,7 @@ class RoomServiceTest {
 
         roomRequestDTO = new RoomRequestDTO("Deluxe Room", 1, "A luxury room", BigDecimal.valueOf(150.0));
         roomResponseDTO = new RoomResponseDTO(1L, "Deluxe Room", 1, "A luxury room",
-                BigDecimal.valueOf(150.0), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                BigDecimal.valueOf(150.0));
     }
 
     @Test
@@ -96,11 +94,9 @@ class RoomServiceTest {
         room.setDescription("Luxury suite");
         room.setPrice(BigDecimal.valueOf(300.0));
         room.setSleepingPlaces(2);
-        room.setCreatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        room.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 
         RoomResponseDTO roomResponseDTO = new RoomResponseDTO(1L, "Deluxe Room", 2, "Luxury suite",
-                BigDecimal.valueOf(300.0), room.getCreatedAt(), room.getUpdatedAt());
+                BigDecimal.valueOf(300.0));
 
         when(roomMapper.roomRequestDTOToRoom(any(RoomRequestDTO.class))).thenReturn(room);
         when(roomRepository.save(any(Room.class))).thenReturn(room);
@@ -112,8 +108,6 @@ class RoomServiceTest {
         assertEquals("Deluxe Room", result.getName());
         assertEquals(2, result.getSleepingPlaces());
         assertEquals(BigDecimal.valueOf(300.0), result.getPrice());
-        assertNotNull(result.getCreatedAt());
-        assertNotNull(result.getUpdatedAt());
 
         verify(roomRepository, times(1)).save(any(Room.class));
     }
@@ -133,8 +127,6 @@ class RoomServiceTest {
         existingRoom.setDescription("Old description");
         existingRoom.setPrice(BigDecimal.valueOf(100.0));
         existingRoom.setSleepingPlaces(2);
-        existingRoom.setCreatedAt(LocalDateTime.of(2025, 2, 12, 20, 5));
-        existingRoom.setUpdatedAt(LocalDateTime.of(2025, 2, 12, 20, 5));
 
         Room updatedRoom = new Room();
         updatedRoom.setId(1L);
@@ -142,14 +134,12 @@ class RoomServiceTest {
         updatedRoom.setDescription("Updated description");
         updatedRoom.setPrice(BigDecimal.valueOf(200.0));
         updatedRoom.setSleepingPlaces(3);
-        updatedRoom.setCreatedAt(existingRoom.getCreatedAt());
-        updatedRoom.setUpdatedAt(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
 
         when(roomRepository.findById(1L)).thenReturn(Optional.of(existingRoom));
         when(roomRepository.save(any(Room.class))).thenReturn(updatedRoom);
         when(roomMapper.roomToRoomResponseDTO(any(Room.class))).thenReturn(
                 new RoomResponseDTO(1L, "Updated Room", 3, "Updated description",
-                        BigDecimal.valueOf(200.0), existingRoom.getCreatedAt(), updatedRoom.getUpdatedAt()));
+                        BigDecimal.valueOf(200.0)));
 
         RoomResponseDTO result = roomService.updateRoom(1L, updatedRoomDTO);
 
@@ -157,8 +147,6 @@ class RoomServiceTest {
         assertEquals("Updated Room", result.getName());
         assertEquals(3, result.getSleepingPlaces());
         assertEquals(BigDecimal.valueOf(200.0), result.getPrice());
-        assertEquals(existingRoom.getCreatedAt(), result.getCreatedAt());
-        assertNotNull(result.getUpdatedAt());
 
         verify(roomRepository, times(1)).save(any(Room.class));
     }

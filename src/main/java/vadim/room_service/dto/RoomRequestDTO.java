@@ -1,15 +1,13 @@
 package vadim.room_service.dto;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
-public class RoomRequestDTO {
+public class RoomRequestDTO implements Serializable {
     private String name;
     private Integer sleepingPlaces;
     private String description;
     private BigDecimal price;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
 
     public RoomRequestDTO() {
     }
@@ -51,21 +49,5 @@ public class RoomRequestDTO {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }

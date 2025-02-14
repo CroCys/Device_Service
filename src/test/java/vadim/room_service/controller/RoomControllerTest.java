@@ -14,8 +14,6 @@ import vadim.room_service.dto.RoomResponseDTO;
 import vadim.room_service.service.RoomService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,10 +31,11 @@ public class RoomControllerTest {
 
     @Test
     void getAllRoomsTest() {
-        List<RoomResponseDTO> mockRooms = List.of(new RoomResponseDTO(1L, "Room 1", 2, "empty",
-                        BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)),
+        List<RoomResponseDTO> mockRooms = List.of(
+                new RoomResponseDTO(1L, "Room 1", 2, "empty",
+                        BigDecimal.valueOf(100)),
                 new RoomResponseDTO(2L, "Room 2", 4, "empty",
-                        BigDecimal.valueOf(150), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES)));
+                        BigDecimal.valueOf(150)));
 
         Page<RoomResponseDTO> page = new PageImpl<>(mockRooms, PageRequest.of(0, 10), mockRooms.size());
         when(roomService.getAllRooms(PageRequest.of(0, 10))).thenReturn(page);
@@ -53,7 +52,7 @@ public class RoomControllerTest {
     @Test
     void getRoomByIdTest() {
         RoomResponseDTO mockRoom = new RoomResponseDTO(1L, "Room 1", 2, "empty",
-                BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                BigDecimal.valueOf(100));
         when(roomService.getRoomById(mockRoom.getId())).thenReturn(mockRoom);
 
         ResponseEntity<RoomResponseDTO> response = roomController.getRoomById(mockRoom.getId());
@@ -69,7 +68,7 @@ public class RoomControllerTest {
     void createRoomTest() {
         RoomRequestDTO roomRequestDTO = new RoomRequestDTO("Room 1", 2, "empty", BigDecimal.valueOf(100));
         RoomResponseDTO mockRoom = new RoomResponseDTO(1L, "Room 1", 2, "empty",
-                BigDecimal.valueOf(100), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                BigDecimal.valueOf(100));
 
         when(roomService.createRoom(roomRequestDTO)).thenReturn(mockRoom);
 
@@ -87,7 +86,7 @@ public class RoomControllerTest {
         Long roomId = 1L;
         RoomRequestDTO updatedRoomDTO = new RoomRequestDTO("Updated Room", 3, "empty", BigDecimal.valueOf(120));
         RoomResponseDTO updatedRoom = new RoomResponseDTO(roomId, "Updated Room", 3, "empty",
-                BigDecimal.valueOf(120), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+                BigDecimal.valueOf(120));
 
         when(roomService.updateRoom(roomId, updatedRoomDTO)).thenReturn(updatedRoom);
 

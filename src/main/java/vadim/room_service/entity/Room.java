@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "rooms")
@@ -32,14 +30,6 @@ public class Room {
     @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
     @Column(nullable = false)
     private BigDecimal price;
-
-    @PastOrPresent(message = "Creation date cannot be in the future")
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @PastOrPresent(message = "The update date cannot be in the future")
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     public Long getId() {
         return id;
@@ -81,21 +71,5 @@ public class Room {
 
     public void setPrice(@NotNull(message = "Price is required") @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0") BigDecimal price) {
         this.price = price;
-    }
-
-    public @PastOrPresent(message = "Creation date cannot be in the future") LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(@PastOrPresent(message = "Creation date cannot be in the future") LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public @PastOrPresent(message = "The update date cannot be in the future") LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(@PastOrPresent(message = "The update date cannot be in the future") LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 }
