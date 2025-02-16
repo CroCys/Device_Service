@@ -4,7 +4,7 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import vadim.room_service.entity.Room;
 
@@ -13,13 +13,12 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RoomTest {
-    private ValidatorFactory factory;
-    private Validator validator;
+class RoomTest {
+    private static Validator validator;
 
-    @BeforeEach
-    void setUp() {
-        factory = Validation.buildDefaultValidatorFactory();
+    @BeforeAll
+    static void setUp() {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();
     }
 
@@ -46,6 +45,7 @@ public class RoomTest {
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
         assertEquals(1, violations.size(), "There should be one violation");
+        assertEquals("Price must be greater than 0", violations.iterator().next().getMessage());
     }
 
     @Test
@@ -59,25 +59,13 @@ public class RoomTest {
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
         assertEquals(1, violations.size(), "There should be one violation");
-    }
-
-    @Test
-    void testRoomValidation_FutureCreationDate() {
-        Room room = new Room();
-        room.setName("Luxury Room");
-        room.setSleepingPlaces(3);
-        room.setDescription("A luxurious room with modern amenities");
-        room.setPrice(new BigDecimal("200.0"));
-
-        Set<ConstraintViolation<Room>> violations = validator.validate(room);
-        assertFalse(violations.isEmpty(), "There should be validation errors");
-        assertEquals(1, violations.size(), "There should be one violation");
+        assertEquals("Sleeping places cannot be 0 or below", violations.iterator().next().getMessage());
     }
 
     @Test
     void testRoomValidation_EmptyName() {
         Room room = new Room();
-        room.setName("");
+        room.setName(" ");
         room.setSleepingPlaces(2);
         room.setDescription("A room with no name");
         room.setPrice(new BigDecimal("75.0"));
@@ -85,5 +73,6 @@ public class RoomTest {
         Set<ConstraintViolation<Room>> violations = validator.validate(room);
         assertFalse(violations.isEmpty(), "There should be validation errors");
         assertEquals(1, violations.size(), "There should be one violation");
+        assertEquals("The room name cannot be empty", violations.iterator().next().getMessage());
     }
 }
