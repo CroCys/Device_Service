@@ -56,13 +56,9 @@ public class RoomService {
 
     @Cacheable(value = "rooms", key = "#id")
     public RoomResponseDTO getRoomById(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Invalid room id " + id);
-        }
-
-        Room room = roomRepository.findById(id).orElseThrow(() -> new RoomNotFoundException("Room not found with id " + id));
-
-        return roomMapper.roomToRoomResponseDTO(room);
+        return roomRepository.findById(id)
+                .map(roomMapper::roomToRoomResponseDTO)
+                .orElseThrow(() -> new RoomNotFoundException("Room not found with id " + id));
     }
 
     @CacheEvict(value = "rooms", allEntries = true)
@@ -91,11 +87,18 @@ public class RoomService {
         Room room = roomRepository.findById(id)
                 .orElseThrow(() -> new RoomNotFoundException("No room found with id " + id));
 
-        // Обновляем только изменяемые поля
-        room.setName(updatedRoomDTO.getName());
-        room.setDescription(updatedRoomDTO.getDescription());
-        room.setPrice(updatedRoomDTO.getPrice());
-        room.setSleepingPlaces(updatedRoomDTO.getSleepingPlaces());
+        if (updatedRoomDTO.getName() != null && !updatedRoomDTO.getName().isEmpty()) {
+            room.setName(updatedRoomDTO.getName());
+        }
+        if (updatedRoomDTO.getDescription() != null && !updatedRoomDTO.getDescription().isEmpty()) {
+            room.setDescription(updatedRoomDTO.getDescription());
+        }
+        if (updatedRoomDTO.getPrice() != null && updatedRoomDTO.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            room.setPrice(updatedRoomDTO.getPrice());
+        }
+        if (updatedRoomDTO.getSleepingPlaces() != null && updatedRoomDTO.getSleepingPlaces() > 0) {
+            room.setSleepingPlaces(updatedRoomDTO.getSleepingPlaces());
+        }
 
         Room savedRoom = roomRepository.save(room);
         return roomMapper.roomToRoomResponseDTO(savedRoom);
@@ -103,10 +106,6 @@ public class RoomService {
 
     @CacheEvict(value = "rooms", key = "#id")
     public void deleteRoom(Long id) {
-        if (id == null || id <= 0) {
-            throw new IllegalArgumentException("Invalid room id " + id);
-        }
-
         if (!roomRepository.existsById(id)) {
             throw new RoomNotFoundException("No room found with id " + id);
         }

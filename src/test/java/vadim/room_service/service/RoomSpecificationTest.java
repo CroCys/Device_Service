@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class RoomSpecificationTest {
+class RoomSpecificationTest {
 
     @Test
     void testNameFilter() {

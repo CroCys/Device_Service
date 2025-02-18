@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -18,7 +19,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         logger.error("IllegalArgumentException: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Invalid request", ex.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse("Invalid request", ex.getMessage(),
+                HttpStatus.BAD_REQUEST, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
@@ -26,7 +28,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RoomNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleRoomNotFoundException(RoomNotFoundException ex) {
         logger.error("RoomNotFoundException: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Room not found", ex.getMessage(), HttpStatus.NOT_FOUND, LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse("Room not found", ex.getMessage(),
+                HttpStatus.NOT_FOUND, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
@@ -34,7 +37,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         logger.error("RuntimeException: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Internal server error", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse("Internal server error", ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
@@ -42,7 +46,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         logger.error("Exception: {}", ex.getMessage());
-        ErrorResponse errorResponse = new ErrorResponse("Unexpected error", ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, LocalDateTime.now());
+        ErrorResponse errorResponse = new ErrorResponse("Unexpected error", ex.getMessage(),
+                HttpStatus.INTERNAL_SERVER_ERROR, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
