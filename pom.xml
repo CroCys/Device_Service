@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>vadim</groupId>
-    <artifactId>Room_Service</artifactId>
+    <artifactId>Device_Service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>Room Service</name>
-    <description>Room Service</description>
+    <name>Device Service</name>
+    <description>Device Service</description>
 
     <properties>
         <java.version>21</java.version>
@@ -53,6 +53,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>annotationProcessor</scope>
         </dependency>
 
         <!-- Database Driver -->
