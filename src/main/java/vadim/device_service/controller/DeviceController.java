@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/devices")
 public class DeviceController {
 
     private final DeviceService deviceService;
@@ -24,7 +24,7 @@ public class DeviceController {
         this.deviceService = deviceService;
     }
 
-    @GetMapping("/devices")
+    @GetMapping("/getAll")
     public ResponseEntity<Page<DeviceResponseDTO>> getAllDevices(Pageable pageable) {
         Page<DeviceResponseDTO> devices = deviceService.getAllDevices(pageable);
         return ResponseEntity.ok(devices);
@@ -36,18 +36,16 @@ public class DeviceController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) Category category,
-            @RequestParam(name = "minprice", required = false) BigDecimal minPrice,
-            @RequestParam(name = "maxprice", required = false) BigDecimal maxPrice,
             @RequestParam(name = "minrelease", required = false) LocalDate minReleaseDate,
             @RequestParam(name = "maxrelease", required = false) LocalDate maxReleaseDate,
             @RequestParam(name = "minrating", required = false) BigDecimal minRating,
             @RequestParam(name = "maxrating", required = false) BigDecimal maxRating) {
 
-        Page<DeviceResponseDTO> devices = deviceService.getAllDevices(pageable, name, brand, category, minPrice, maxPrice, minReleaseDate, maxReleaseDate, minRating, maxRating);
+        Page<DeviceResponseDTO> devices = deviceService.getAllDevices(pageable, name, brand, category, minReleaseDate, maxReleaseDate, minRating, maxRating);
         return ResponseEntity.ok(devices);
     }
 
-    @GetMapping("/device/{id}")
+    @GetMapping("/getDevice/{id}")
     public ResponseEntity<DeviceResponseDTO> getDeviceById(@PathVariable Long id) {
         DeviceResponseDTO device = deviceService.getDeviceById(id);
         return ResponseEntity.ok(device);

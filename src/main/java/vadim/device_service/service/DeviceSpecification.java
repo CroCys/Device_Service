@@ -29,18 +29,6 @@ public class DeviceSpecification {
                 category == null ? null : criteriaBuilder.equal(root.get("category"), category);
     }
 
-    public static Specification<Device> minPrice(BigDecimal minPrice) {
-        return (root, query, criteriaBuilder) ->
-                minPrice == null ? null : criteriaBuilder
-                        .greaterThanOrEqualTo(root.get("price"), minPrice);
-    }
-
-    public static Specification<Device> maxPrice(BigDecimal maxPrice) {
-        return (root, query, criteriaBuilder) ->
-                maxPrice == null ? null : criteriaBuilder
-                        .lessThanOrEqualTo(root.get("price"), maxPrice);
-    }
-
     public static Specification<Device> minReleaseDate(LocalDate minReleaseDate) {
         return (root, query, criteriaBuilder) ->
                 minReleaseDate == null ? null : criteriaBuilder

@@ -6,10 +6,11 @@ import vadim.device_service.dto.DeviceRequestDTO;
 import vadim.device_service.dto.DeviceResponseDTO;
 import vadim.device_service.entity.Device;
 
-@Mapper
+@Mapper(componentModel = "spring", uses = {ImageMapper.class})
 public interface DeviceMapper {
-    DeviceResponseDTO deviceToDeviceResponseDTO(Device device);
 
-    @Mapping(target = "id", ignore = true)
-    Device deviceRequestDTOToDevice(DeviceRequestDTO deviceRequestDTO);
+    @Mapping(target = "images", ignore = true)
+    Device toEntity(DeviceRequestDTO dto);
+
+    DeviceResponseDTO toDto(Device entity);
 }

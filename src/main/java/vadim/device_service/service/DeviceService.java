@@ -17,7 +17,6 @@ import vadim.device_service.repository.DeviceRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.regex.Pattern;
 
 @Service
 public class DeviceService {
@@ -32,11 +31,10 @@ public class DeviceService {
 
     @Cacheable(value = "devices", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<DeviceResponseDTO> getAllDevices(Pageable pageable) {
-        return deviceRepository.findAll(pageable).map(deviceMapper::deviceToDeviceResponseDTO);
+        return deviceRepository.findAll(pageable).map(deviceMapper::toDto);
     }
 
     public Page<DeviceResponseDTO> getAllDevices(Pageable pageable, String name, String brand, Category category,
-                                                 BigDecimal minPrice, BigDecimal maxPrice,
                                                  LocalDate minReleaseDate, LocalDate maxReleaseDate,
                                                  BigDecimal minRating, BigDecimal maxRating) {
         Specification<Device> spec = Specification.where(null);
@@ -49,12 +47,6 @@ public class DeviceService {
         }
         if (category != null) {
             spec = spec.and(DeviceSpecification.categoryFilter(category));
-        }
-        if (minPrice != null) {
-            spec = spec.and(DeviceSpecification.minPrice(minPrice));
-        }
-        if (maxPrice != null) {
-            spec = spec.and(DeviceSpecification.maxPrice(maxPrice));
         }
         if (minReleaseDate != null) {
             spec = spec.and(DeviceSpecification.minReleaseDate(minReleaseDate));
@@ -69,22 +61,22 @@ public class DeviceService {
             spec = spec.and(DeviceSpecification.maxRating(maxRating));
         }
 
-        return deviceRepository.findAll(spec, pageable).map(deviceMapper::deviceToDeviceResponseDTO);
+        return deviceRepository.findAll(spec, pageable).map(deviceMapper::toDto);
     }
 
     @Cacheable(value = "devices", key = "#id")
     public DeviceResponseDTO getDeviceById(Long id) {
         return deviceRepository.findById(id)
-                .map(deviceMapper::deviceToDeviceResponseDTO)
+                .map(deviceMapper::toDto)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found with id " + id));
     }
 
     @CacheEvict(value = "devices", allEntries = true)
     public DeviceResponseDTO createDevice(DeviceRequestDTO deviceRequestDTO) {
-        Device device = deviceMapper.deviceRequestDTOToDevice(deviceRequestDTO);
+        Device device = deviceMapper.toEntity(deviceRequestDTO);
         Device savedDevice = deviceRepository.save(device);
 
-        return deviceMapper.deviceToDeviceResponseDTO(savedDevice);
+        return deviceMapper.toDto(savedDevice);
     }
 
     @Transactional
@@ -113,24 +105,12 @@ public class DeviceService {
         if (updatedDeviceDTO.getDescription() != null && !updatedDeviceDTO.getDescription().isBlank()) {
             device.setDescription(updatedDeviceDTO.getDescription());
         }
-        if (updatedDeviceDTO.getPrice() != null && updatedDeviceDTO.getPrice().compareTo(BigDecimal.ZERO) > 0) {
-            device.setPrice(updatedDeviceDTO.getPrice());
-        }
         if (updatedDeviceDTO.getReleaseDate() != null && !updatedDeviceDTO.getReleaseDate().isAfter(LocalDate.now())) {
             device.setReleaseDate(updatedDeviceDTO.getReleaseDate());
         }
-//        if (updatedDeviceDTO.getImageUrl() != null
-//                && Pattern.matches("^(http|https)://.*\\.(png|jpg|jpeg)$", updatedDeviceDTO.getImageUrl())) {
-//        }
-        device.setImageUrl(updatedDeviceDTO.getImageUrl());
-        if (updatedDeviceDTO.getAverageRating() != null
-                && updatedDeviceDTO.getAverageRating().compareTo(BigDecimal.ZERO) >= 0
-                && updatedDeviceDTO.getAverageRating().compareTo(BigDecimal.TEN) <= 0) {
-            device.setAverageRating(updatedDeviceDTO.getAverageRating());
-        }
 
         Device savedDevice = deviceRepository.save(device);
-        return deviceMapper.deviceToDeviceResponseDTO(savedDevice);
+        return deviceMapper.toDto(savedDevice);
     }
 
     @CacheEvict(value = "devices", key = "#id")

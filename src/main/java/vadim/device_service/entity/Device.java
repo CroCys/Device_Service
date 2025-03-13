@@ -2,13 +2,12 @@ package vadim.device_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "devices")
@@ -39,16 +38,11 @@ public class Device {
     @Column(length = 500)
     private String description;
 
-    @NotNull(message = "Price cannot be empty")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Price must be greater than 0")
-    @Column(nullable = false)
-    private BigDecimal price;
-
     @PastOrPresent(message = "Release date cannot be in the future")
     private LocalDate releaseDate;
 
-//    @Pattern(regexp = "^(http|https)://.*\\.(png|jpg|jpeg)$", message = "Image URL must be a valid link to a PNG, JPG, or JPEG file")
-    private String imageUrl;
+    @OneToMany(mappedBy = "device", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<Image> images = new ArrayList<>();
 
     @DecimalMin(value = "0.0", message = "Rating must be at least 0")
     @DecimalMax(value = "10.0", message = "Rating cannot be more than 10")

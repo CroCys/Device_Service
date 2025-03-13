@@ -1,19 +1,22 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: Device Service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: ${DEVICE_SERVICE_DB_USERNAME}  # Используем переменную окружения
-    password: ${DEVICE_SERVICE_DB_PASSWORD}  # Используем переменную окружения
+    url: jdbc:postgresql://localhost:5432/devices_db
+    username: admin
+    password: ggD3v1c3
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
       minimum-idle: 2
       idle-timeout: 30000
       connection-timeout: 30000
-      max-lifetime: 60000  # Рекомендуется добавить для стабильности
-      leak-detection-threshold: 15000  # Для поиска утечек соединений
+      max-lifetime: 60000
+      leak-detection-threshold: 15000
 
   jpa:
     hibernate:
@@ -36,17 +39,8 @@ spring:
       port: 6379
       timeout: 2000
 
-logging:
-  level:
-    root: INFO
-    org:
-      springframework:
-        web: DEBUG
-        data.redis: DEBUG
-        security: DEBUG  # Добавление логирования для безопасности
-      hibernate:
-        SQL: DEBUG
-        type.descriptor.sql: TRACE
-
-server:
-  port: 8080
+minio:
+  endpoint: http://localhost:9000
+  accessKey: admin
+  secretKey: ggD3v1c3
+  bucket: images
