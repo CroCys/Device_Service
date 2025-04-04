@@ -1,6 +1,7 @@
 package vadim.device_service.controller;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -16,13 +17,10 @@ import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/devices")
+@RequiredArgsConstructor
 public class DeviceController {
 
     private final DeviceService deviceService;
-
-    public DeviceController(DeviceService deviceService) {
-        this.deviceService = deviceService;
-    }
 
     @GetMapping("/getAll")
     public ResponseEntity<Page<DeviceResponseDTO>> getAllDevices(Pageable pageable) {
@@ -36,16 +34,16 @@ public class DeviceController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) Category category,
-            @RequestParam(name = "minrelease", required = false) LocalDate minReleaseDate,
-            @RequestParam(name = "maxrelease", required = false) LocalDate maxReleaseDate,
-            @RequestParam(name = "minrating", required = false) BigDecimal minRating,
-            @RequestParam(name = "maxrating", required = false) BigDecimal maxRating) {
+            @RequestParam(required = false) LocalDate minReleaseDate,
+            @RequestParam(required = false) LocalDate maxReleaseDate,
+            @RequestParam(required = false) BigDecimal minRating,
+            @RequestParam(required = false) BigDecimal maxRating) {
 
         Page<DeviceResponseDTO> devices = deviceService.getAllDevices(pageable, name, brand, category, minReleaseDate, maxReleaseDate, minRating, maxRating);
         return ResponseEntity.ok(devices);
     }
 
-    @GetMapping("/getDevice/{id}")
+    @GetMapping("/getById/{id}")
     public ResponseEntity<DeviceResponseDTO> getDeviceById(@PathVariable Long id) {
         DeviceResponseDTO device = deviceService.getDeviceById(id);
         return ResponseEntity.ok(device);

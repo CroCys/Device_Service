@@ -1,10 +1,12 @@
 package vadim.device_service.controller;
 
 import io.minio.errors.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vadim.device_service.dto.ImageResponseDTO;
+import vadim.device_service.repository.ImageRepository;
 import vadim.device_service.service.ImageService;
 
 import java.io.IOException;
@@ -14,20 +16,18 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/images")
+@RequiredArgsConstructor
 public class ImageController {
 
     private final ImageService imageService;
+    private final ImageRepository imageRepository;
 
-    public ImageController(ImageService imageService) {
-        this.imageService = imageService;
-    }
-
-    @GetMapping("/deviceImages/{deviceId}")
+    @GetMapping("/getAll/{deviceId}")
     public ResponseEntity<List<ImageResponseDTO>> findAllByDevice(@PathVariable Long deviceId) {
         return ResponseEntity.ok(imageService.findAllByDevice(deviceId));
     }
 
-    @GetMapping("/getImage/{imageId}")
+    @GetMapping("/getById/{imageId}")
     public ResponseEntity<ImageResponseDTO> findById(@PathVariable Long imageId) {
         return ResponseEntity.ok(imageService.findById(imageId));
     }
@@ -35,5 +35,11 @@ public class ImageController {
     @PostMapping("/upload/{deviceId}")
     public ResponseEntity<ImageResponseDTO> uploadImage(@RequestParam("file") MultipartFile file, @PathVariable Long deviceId) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         return ResponseEntity.ok(imageService.uploadImage(file, deviceId));
+    }
+
+    @DeleteMapping("delete/{imageId}")
+    public ResponseEntity<Void> deleteImage(@PathVariable Long imageId) {
+        imageRepository.deleteById(imageId);
+        return ResponseEntity.noContent().build();
     }
 }

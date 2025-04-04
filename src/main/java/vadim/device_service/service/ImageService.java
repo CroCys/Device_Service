@@ -5,6 +5,7 @@ import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.errors.*;
 import io.minio.http.Method;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class ImageService {
 
     private final MinioClient minioClient;
@@ -33,13 +35,6 @@ public class ImageService {
 
     @Value("${minio.bucket}")
     private String bucket;
-
-    public ImageService(MinioClient minioClient, ImageRepository imageRepository, ImageMapper imageMapper, DeviceRepository deviceRepository) {
-        this.minioClient = minioClient;
-        this.imageRepository = imageRepository;
-        this.imageMapper = imageMapper;
-        this.deviceRepository = deviceRepository;
-    }
 
     public List<ImageResponseDTO> findAllByDevice(Long deviceId) {
         List<Image> images = imageRepository.findAllByDeviceId(deviceId);
@@ -80,6 +75,14 @@ public class ImageService {
         Image savedImage = imageRepository.save(uploadedImage);
 
         return imageMapper.toDTO(savedImage);
+    }
+
+    public void deleteImage(Long imageId) {
+        if (!imageRepository.existsById(imageId)) {
+            throw new ImageNotFoundException("No image found with id " + imageId);
+        }
+
+        imageRepository.deleteById(imageId);
     }
 
     private String getImageUrl(String imageName) throws ServerException,

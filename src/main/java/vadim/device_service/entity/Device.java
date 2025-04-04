@@ -2,7 +2,10 @@ package vadim.device_service.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,7 +47,9 @@ public class Device {
     @OneToMany(mappedBy = "device", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<Image> images = new ArrayList<>();
 
-    @DecimalMin(value = "0.0", message = "Rating must be at least 0")
-    @DecimalMax(value = "10.0", message = "Rating cannot be more than 10")
+    @NotNull(message = "Rating cannot be null")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Rating must be at least 0.0")
+    @DecimalMax(value = "10.0", inclusive = true, message = "Rating must be at most 10.0")
+    @Column(name = "average_rating", precision = 2, scale = 1, nullable = false)
     private BigDecimal averageRating;
 }

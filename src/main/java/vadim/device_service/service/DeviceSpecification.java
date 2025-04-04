@@ -42,14 +42,10 @@ public class DeviceSpecification {
     }
 
     public static Specification<Device> minRating(BigDecimal minRating) {
-        return (root, query, criteriaBuilder) ->
-                minRating == null ? null : criteriaBuilder
-                        .greaterThanOrEqualTo(root.get("averageRating"), minRating);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get("averageRating"), minRating);
     }
 
     public static Specification<Device> maxRating(BigDecimal maxRating) {
-        return (root, query, criteriaBuilder) ->
-                maxRating == null ? null : criteriaBuilder
-                        .lessThanOrEqualTo(root.get("averageRating"), maxRating);
+        return (root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get("averageRating"), maxRating);
     }
 }

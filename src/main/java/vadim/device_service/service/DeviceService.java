@@ -1,8 +1,7 @@
 package vadim.device_service.service;
 
 import jakarta.transaction.Transactional;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,17 +18,13 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Service
+@RequiredArgsConstructor
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
     private final DeviceMapper deviceMapper;
 
-    public DeviceService(DeviceRepository deviceRepository, DeviceMapper deviceMapper) {
-        this.deviceRepository = deviceRepository;
-        this.deviceMapper = deviceMapper;
-    }
-
-    @Cacheable(value = "devices", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
+    //    @Cacheable(value = "devices", key = "#pageable.pageNumber + '-' + #pageable.pageSize")
     public Page<DeviceResponseDTO> getAllDevices(Pageable pageable) {
         return deviceRepository.findAll(pageable).map(deviceMapper::toDto);
     }
@@ -64,14 +59,14 @@ public class DeviceService {
         return deviceRepository.findAll(spec, pageable).map(deviceMapper::toDto);
     }
 
-    @Cacheable(value = "devices", key = "#id")
+    //    @Cacheable(value = "devices", key = "#id")
     public DeviceResponseDTO getDeviceById(Long id) {
         return deviceRepository.findById(id)
                 .map(deviceMapper::toDto)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found with id " + id));
     }
 
-    @CacheEvict(value = "devices", allEntries = true)
+    //    @CacheEvict(value = "devices", allEntries = true)
     public DeviceResponseDTO createDevice(DeviceRequestDTO deviceRequestDTO) {
         Device device = deviceMapper.toEntity(deviceRequestDTO);
         Device savedDevice = deviceRepository.save(device);
@@ -80,7 +75,7 @@ public class DeviceService {
     }
 
     @Transactional
-    @CacheEvict(value = "devices", key = "#id")
+//    @CacheEvict(value = "devices", key = "#id")
     public DeviceResponseDTO updateDevice(Long id, DeviceRequestDTO updatedDeviceDTO) {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid device id " + id);
@@ -113,7 +108,7 @@ public class DeviceService {
         return deviceMapper.toDto(savedDevice);
     }
 
-    @CacheEvict(value = "devices", key = "#id")
+    //    @CacheEvict(value = "devices", key = "#id")
     public void deleteDevice(Long id) {
         if (!deviceRepository.existsById(id)) {
             throw new DeviceNotFoundException("No device found with id " + id);
