@@ -1,0 +1,66 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: Device Service
+
+  # Конфигурация источника данных
+  datasource:
+    url: jdbc:postgresql://postgres:5432/devices_db
+    username: admin
+    password: ggD3v1c3
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 30000
+      max-lifetime: 60000
+      leak-detection-threshold: 15000
+
+  # Конфигурация JPA/Hibernate
+  jpa:
+    hibernate:
+      ddl-auto: none  # В prod рекомендуется использовать ручные миграции
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+
+  # Конфигурация Redis
+  data:
+    redis:
+      host: redis
+      port: 6379
+      timeout: 2000
+      password: ggD3v1c3
+
+  # Конфигурация кеша
+  cache:
+    type: redis
+
+  # Конфигурация безопасности
+  security:
+    # Базовые настройки безопасности (вы можете настроить под свои нужды)
+    filter:
+      order: 5
+
+# Конфигурация MinIO
+minio:
+  endpoint: http://minio:9000
+  accessKey: admin
+  secretKey: ggD3v1c3
+  bucket: images
+
+# Настройки логирования
+logging:
+  level:
+    root: WARN
+    vadim: INFO  # Имя вашего основного пакета
+  file:
+    name: /var/logs/device-service.log

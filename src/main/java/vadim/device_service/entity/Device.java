@@ -48,8 +48,7 @@ public class Device {
     private List<Image> images = new ArrayList<>();
 
     @NotNull(message = "Rating cannot be null")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Rating must be at least 0.0")
-    @DecimalMax(value = "10.0", inclusive = true, message = "Rating must be at most 10.0")
-    @Column(name = "average_rating", precision = 2, scale = 1, nullable = false)
+    @DecimalMin(value = "0.0", message = "Rating must be at least 0.0")
+    @DecimalMax(value = "5.0", message = "Rating must be at most 5.0")
     private BigDecimal averageRating;
 }

@@ -27,7 +27,7 @@ public class Image {
     @Column(nullable = false, unique = true, length = 1000)
     private String url;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "device_id")
     private Device device;
 }

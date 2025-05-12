@@ -9,7 +9,8 @@ import vadim.device_service.entity.Category;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,6 +23,6 @@ public class DeviceResponseDTO implements Serializable {
     private Category category;
     private String description;
     private LocalDate releaseDate;
-    private Set<ImageResponseDTO> images;
+    private List<ImageResponseDTO> images = new ArrayList<>();
     private BigDecimal averageRating;
 }

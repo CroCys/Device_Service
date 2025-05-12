@@ -3,12 +3,15 @@ package vadim.device_service.configuration;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import lombok.Getter;
+import io.minio.errors.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Getter
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
 @Configuration
 public class MinioConfig {
 
@@ -25,7 +28,7 @@ public class MinioConfig {
     private String bucket;
 
     @Bean
-    public MinioClient minioClient() throws Exception {
+    public MinioClient minioClient() throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         MinioClient minioClient = MinioClient.builder()
                 .endpoint(endpoint)
                 .credentials(accessKey, secretKey)
@@ -33,8 +36,6 @@ public class MinioConfig {
 
         if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
             minioClient.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
-        } else {
-            System.out.println("Bucket already exists");
         }
 
         return minioClient;

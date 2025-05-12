@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import vadim.device_service.dto.ImageResponseDTO;
-import vadim.device_service.repository.ImageRepository;
 import vadim.device_service.service.ImageService;
 
 import java.io.IOException;
@@ -20,7 +19,6 @@ import java.util.List;
 public class ImageController {
 
     private final ImageService imageService;
-    private final ImageRepository imageRepository;
 
     @GetMapping("/getAll/{deviceId}")
     public ResponseEntity<List<ImageResponseDTO>> findAllByDevice(@PathVariable Long deviceId) {
@@ -39,7 +37,7 @@ public class ImageController {
 
     @DeleteMapping("delete/{imageId}")
     public ResponseEntity<Void> deleteImage(@PathVariable Long imageId) {
-        imageRepository.deleteById(imageId);
+        imageService.deleteImage(imageId);
         return ResponseEntity.noContent().build();
     }
 }
