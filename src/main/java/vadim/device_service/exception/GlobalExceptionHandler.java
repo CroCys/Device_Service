@@ -15,7 +15,6 @@ public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 400 - Некорректные аргументы
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         logger.error("IllegalArgumentException: {}", ex.getMessage());
@@ -24,16 +23,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // 404 - Комната не найдена
     @ExceptionHandler(DeviceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleRoomNotFoundException(DeviceNotFoundException ex) {
-        logger.error("RoomNotFoundException: {}", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleDeviceNotFoundException(DeviceNotFoundException ex) {
+        logger.error("DeviceNotFoundException: {}", ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse("Device not found", ex.getMessage(),
                 HttpStatus.NOT_FOUND, LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
-    // 500 - Все остальные исключения
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         logger.error("RuntimeException: {}", ex.getMessage());
@@ -42,7 +39,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 
-    // Общий обработчик для всех непредусмотренных исключений
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         logger.error("Exception: {}", ex.getMessage());

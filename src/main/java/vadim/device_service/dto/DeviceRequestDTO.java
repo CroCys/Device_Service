@@ -33,7 +33,7 @@ public class DeviceRequestDTO implements Serializable {
     private LocalDate releaseDate;
 
     @NotNull(message = "Rating cannot be null")
-    @DecimalMin(value = "0.0", inclusive = true, message = "Rating must be at least 0.0")
-    @DecimalMax(value = "5.0", inclusive = true, message = "Rating must be at most 5.0")
+    @DecimalMin(value = "0.0", message = "Rating must be at least 0.0")
+    @DecimalMax(value = "5.0", message = "Rating must be at most 5.0")
     private BigDecimal averageRating;
 }

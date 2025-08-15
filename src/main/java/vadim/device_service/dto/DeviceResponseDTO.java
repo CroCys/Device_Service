@@ -16,6 +16,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class DeviceResponseDTO implements Serializable {
     private Long id;
     private String name;

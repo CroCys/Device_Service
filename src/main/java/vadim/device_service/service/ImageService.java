@@ -51,10 +51,9 @@ public class ImageService {
             ErrorResponseException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidResponseException,
             XmlParserException, InternalException {
+
         String fileName = UUID.randomUUID().toString();
-
         InputStream inputStream = image.getInputStream();
-
         minioClient.putObject(
                 PutObjectArgs.builder()
                         .bucket(bucket)
@@ -65,15 +64,12 @@ public class ImageService {
         );
 
         String url = getImageUrl(fileName);
-
         Image uploadedImage = new Image();
         uploadedImage.setName(fileName);
         uploadedImage.setUrl(url);
         uploadedImage.setDevice(deviceRepository.findById(deviceId)
                 .orElseThrow(() -> new DeviceNotFoundException("Device not found with id " + deviceId)));
-
         Image savedImage = imageRepository.save(uploadedImage);
-
         return imageMapper.toDTO(savedImage);
     }
 
@@ -81,7 +77,6 @@ public class ImageService {
         if (!imageRepository.existsById(imageId)) {
             throw new ImageNotFoundException("No image found with id " + imageId);
         }
-
         imageRepository.deleteById(imageId);
     }
 
@@ -90,6 +85,7 @@ public class ImageService {
             IOException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidResponseException,
             XmlParserException, InternalException {
+
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(Method.GET)

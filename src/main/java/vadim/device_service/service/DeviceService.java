@@ -18,6 +18,8 @@ import vadim.device_service.repository.DeviceRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,31 +37,38 @@ public class DeviceService {
     public Page<DeviceResponseDTO> getAllDevices(Pageable pageable, String name, String brand, Category category,
                                                  LocalDate minReleaseDate, LocalDate maxReleaseDate,
                                                  BigDecimal minRating, BigDecimal maxRating) {
-        Specification<Device> spec = Specification.where(null);
 
+        List<Specification<Device>> specs = new ArrayList<>();
         if (name != null && !name.isBlank()) {
-            spec = spec.and(DeviceSpecification.nameFilter(name));
+            specs.add(DeviceSpecification.nameFilter(name));
         }
         if (brand != null && !brand.isBlank()) {
-            spec = spec.and(DeviceSpecification.brandFilter(brand));
+            specs.add(DeviceSpecification.brandFilter(brand));
         }
         if (category != null) {
-            spec = spec.and(DeviceSpecification.categoryFilter(category));
+            specs.add(DeviceSpecification.categoryFilter(category));
         }
         if (minReleaseDate != null) {
-            spec = spec.and(DeviceSpecification.minReleaseDate(minReleaseDate));
+            specs.add(DeviceSpecification.minReleaseDate(minReleaseDate));
         }
         if (maxReleaseDate != null) {
-            spec = spec.and(DeviceSpecification.maxReleaseDate(maxReleaseDate));
+            specs.add(DeviceSpecification.maxReleaseDate(maxReleaseDate));
         }
         if (minRating != null) {
-            spec = spec.and(DeviceSpecification.minRating(minRating));
+            specs.add(DeviceSpecification.minRating(minRating));
         }
         if (maxRating != null) {
-            spec = spec.and(DeviceSpecification.maxRating(maxRating));
+            specs.add(DeviceSpecification.maxRating(maxRating));
         }
-
-        return deviceRepository.findAll(spec, pageable).map(deviceMapper::toDto);
+        Specification<Device> finalSpec = null;
+        for (Specification<Device> spec : specs) {
+            if (finalSpec == null) {
+                finalSpec = spec;
+            } else {
+                finalSpec = finalSpec.and(spec);
+            }
+        }
+        return deviceRepository.findAll(finalSpec, pageable).map(deviceMapper::toDto);
     }
 
     @Cacheable(value = "devices", key = "#id")
@@ -72,9 +81,8 @@ public class DeviceService {
     @CacheEvict(value = "devices", allEntries = true)
     public DeviceResponseDTO createDevice(DeviceRequestDTO deviceRequestDTO) {
         Device device = deviceMapper.toEntity(deviceRequestDTO);
-        Device savedDevice = deviceRepository.save(device);
-
-        return deviceMapper.toDto(savedDevice);
+        device = deviceRepository.save(device);
+        return deviceMapper.toDto(device);
     }
 
     @Transactional
@@ -83,30 +91,16 @@ public class DeviceService {
         if (id == null || id <= 0) {
             throw new IllegalArgumentException("Invalid device id " + id);
         }
-
         if (updatedDeviceDTO == null) {
             throw new IllegalArgumentException("Invalid device data");
         }
-
         Device device = deviceRepository.findById(id)
                 .orElseThrow(() -> new DeviceNotFoundException("No device found with id " + id));
-
-        if (updatedDeviceDTO.getName() != null && !updatedDeviceDTO.getName().isBlank()) {
-            device.setName(updatedDeviceDTO.getName());
-        }
-        if (updatedDeviceDTO.getBrand() != null && !updatedDeviceDTO.getBrand().isBlank()) {
-            device.setBrand(updatedDeviceDTO.getBrand());
-        }
-        if (updatedDeviceDTO.getCategory() != null) {
-            device.setCategory(updatedDeviceDTO.getCategory());
-        }
-        if (updatedDeviceDTO.getDescription() != null && !updatedDeviceDTO.getDescription().isBlank()) {
-            device.setDescription(updatedDeviceDTO.getDescription());
-        }
-        if (updatedDeviceDTO.getReleaseDate() != null && !updatedDeviceDTO.getReleaseDate().isAfter(LocalDate.now())) {
-            device.setReleaseDate(updatedDeviceDTO.getReleaseDate());
-        }
-
+        device.setName(updatedDeviceDTO.getName());
+        device.setBrand(updatedDeviceDTO.getBrand());
+        device.setCategory(updatedDeviceDTO.getCategory());
+        device.setDescription(updatedDeviceDTO.getDescription());
+        device.setReleaseDate(updatedDeviceDTO.getReleaseDate());
         Device savedDevice = deviceRepository.save(device);
         return deviceMapper.toDto(savedDevice);
     }
@@ -116,7 +110,13 @@ public class DeviceService {
         if (!deviceRepository.existsById(id)) {
             throw new DeviceNotFoundException("No device found with id " + id);
         }
-
         deviceRepository.deleteById(id);
+    }
+
+    void updateDeviceRating(Long id, BigDecimal newRating) {
+        Device device = deviceRepository.findById(id)
+                .orElseThrow(() -> new DeviceNotFoundException("No device found with id " + id));
+        device.setAverageRating(newRating);
+        deviceRepository.save(device);
     }
 }

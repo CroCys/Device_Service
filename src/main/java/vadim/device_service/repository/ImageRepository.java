@@ -6,6 +6,5 @@ import vadim.device_service.entity.Image;
 import java.util.List;
 
 public interface ImageRepository extends JpaRepository<Image, Long> {
-
     List<Image> findAllByDeviceId(Long id);
 }
